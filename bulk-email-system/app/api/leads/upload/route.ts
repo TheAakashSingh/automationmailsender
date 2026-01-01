@@ -53,7 +53,7 @@ export async function POST(request: Request) {
         }
 
         // Check if lead already exists (by email)
-        const existing = await prisma.lead.findUnique({
+        const existing = await prisma.lead.findFirst({
           where: { email: record.email.toLowerCase() },
         })
 

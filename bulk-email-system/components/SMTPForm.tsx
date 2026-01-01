@@ -9,7 +9,7 @@ interface SMTPAccount {
   port: number
   secure: boolean
   username: string
-  password: string
+  password?: string  // Optional - not returned from API when editing
   fromEmail: string
   fromName: string | null
 }
@@ -39,7 +39,7 @@ export default function SMTPForm({ account, onClose, onSuccess }: SMTPFormProps)
       setPort(account.port)
       setSecure(account.secure)
       setUsername(account.username)
-      setPassword(account.password || '') // Don't show existing password
+      setPassword('') // Don't show existing password when editing
       setFromEmail(account.fromEmail)
       setFromName(account.fromName || '')
     }

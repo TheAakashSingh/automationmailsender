@@ -37,11 +37,6 @@ export default async function LogsPage({
             email: true,
           },
         },
-        campaign: {
-          select: {
-            name: true,
-          },
-        },
       },
     }),
     prisma.emailLog.count({ where }),
@@ -49,6 +44,21 @@ export default async function LogsPage({
       select: { id: true, name: true },
     }),
   ])
+
+  // Enrich logs with campaign names
+  const logsWithCampaigns = await Promise.all(
+    logs.map(async (log) => {
+      let campaignName = null
+      if (log.campaignId) {
+        const campaign = await prisma.campaign.findUnique({
+          where: { id: log.campaignId },
+          select: { name: true },
+        })
+        campaignName = campaign?.name || null
+      }
+      return { ...log, campaignName }
+    })
+  )
 
   return (
     <div>
@@ -64,7 +74,7 @@ export default async function LogsPage({
       </div>
 
       <LogsTable
-        logs={logs}
+        logs={logsWithCampaigns}
         total={total}
         page={page}
         itemsPerPage={itemsPerPage}

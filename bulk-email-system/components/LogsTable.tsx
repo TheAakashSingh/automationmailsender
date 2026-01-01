@@ -15,9 +15,7 @@ interface Log {
     company: string
     email: string
   }
-  campaign: {
-    name: string
-  } | null
+  campaignName?: string | null
 }
 
 interface Campaign {
@@ -158,7 +156,7 @@ export default function LogsTable({
                     {log.subject}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                    {log.campaign?.name || '-'}
+                    {log.campaignName || '-'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span

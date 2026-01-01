@@ -11,6 +11,7 @@ interface SMTPAccount {
   port: number
   secure: boolean
   username: string
+  password?: string  // Optional - not returned from API for security
   fromEmail: string
   fromName: string | null
   isActive: boolean

@@ -18,7 +18,7 @@ export async function POST(request: Request) {
     }
 
     // Find lead by email
-    const lead = await prisma.lead.findUnique({
+    const lead = await prisma.lead.findFirst({
       where: { email: from.toLowerCase() },
     })
 

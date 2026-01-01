@@ -42,7 +42,7 @@ export default function CampaignList({
 }: CampaignListProps) {
   const router = useRouter()
   const [showForm, setShowForm] = useState(false)
-  const [editingCampaign, setEditingCampaign] = useState<Campaign | null>(null)
+  const [editingCampaign, setEditingCampaign] = useState<any>(null)
   const [campaigns, setCampaigns] = useState(initialCampaigns)
   const [actionLoading, setActionLoading] = useState<string | null>(null)
 
