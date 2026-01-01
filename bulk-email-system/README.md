@@ -227,13 +227,22 @@ npm run build
 npm start
 ```
 
-### Cron Job Setup
+### Email Queue Processing
 
-For production, set up a cron job (cron-job.org, GitHub Actions, etc.) to hit:
+**Option 1: Manual Processing (Dashboard)**
+- Go to Dashboard
+- Click **"Process Email Queue Now"** button
+- Click every 1-2 minutes while campaigns are running
+
+**Option 2: External Cron Service (Free)**
+Set up a cron job (cron-job.org, EasyCron, etc.) to hit:
 ```
 https://yourdomain.com/api/cron/process-queue
 Authorization: Bearer YOUR_CRON_SECRET
 ```
+Schedule: Every 1-2 minutes
+
+**Note:** Vercel Hobby plan only allows daily cron jobs, so use manual processing or external cron service.
 
 ## Troubleshooting
 

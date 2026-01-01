@@ -15,9 +15,7 @@ export default function ProcessQueueButton() {
     try {
       const response = await fetch('/api/cron/process-queue', {
         method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_CRON_SECRET || 'manual-trigger'}`,
-        },
+        credentials: 'include', // Include session cookies
       })
 
       const data = await response.json()

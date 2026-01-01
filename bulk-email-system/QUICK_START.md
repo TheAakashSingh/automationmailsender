@@ -96,26 +96,30 @@ Visit: http://localhost:3000/login
 2. System creates jobs in queue
 3. Campaign status becomes "running"
 
-### 11. Setup Cron Job (Critical!)
-The system needs a cron job to process the email queue:
+### 11. Process Email Queue (Critical!)
+The system needs to process the email queue regularly:
 
-**Option A: External Cron Service**
-- Use cron-job.org or similar
+**Option A: Manual Processing (Easiest)**
+- Go to Dashboard
+- Click **"Process Email Queue Now"** button
+- Click every 1-2 minutes while campaigns are running
+- Perfect for Hobby plan users!
+
+**Option B: External Cron Service (Free)**
+- Use [cron-job.org](https://cron-job.org) or [EasyCron](https://www.easycron.com)
 - URL: `https://yourdomain.com/api/cron/process-queue`
 - Headers: `Authorization: Bearer YOUR_CRON_SECRET`
 - Frequency: Every 1-2 minutes
 
-**Option B: Local Worker Script**
+**Option C: Local Worker Script (Development)**
 Create `worker.js`:
 ```javascript
 const fetch = require('node-fetch');
 setInterval(async () => {
-  await fetch('http://localhost:3000/api/cron/process-queue', {
-    headers: { 'Authorization': `Bearer ${process.env.CRON_SECRET}` }
-  });
+  await fetch('http://localhost:3000/api/cron/process-queue');
 }, 60000);
 ```
-Run: `CRON_SECRET=your-secret node worker.js`
+Run: `node worker.js`
 
 ### 12. Monitor Progress
 - **Dashboard**: View real-time stats
