@@ -2,21 +2,41 @@
 const path = require('path')
 
 const nextConfig = {
-  webpack: (config) => {
-    // Explicitly resolve @ alias to project root
-    const rootPath = path.resolve(process.cwd())
+  webpack: (config, { isServer, webpack }) => {
+    // Use __dirname for more reliable path resolution in webpack
+    const rootPath = path.resolve(__dirname)
     
+    // CRITICAL: Set @ alias BEFORE any other resolution
+    // This must be done first to ensure Vercel resolves paths correctly
+    if (!config.resolve) {
+      config.resolve = {}
+    }
+    
+    if (!config.resolve.alias) {
+      config.resolve.alias = {}
+    }
+    
+    // Explicitly override @ alias - this is critical for Vercel
+    config.resolve.alias['@'] = rootPath
+    
+    // Also set as object property (some webpack versions need this)
     config.resolve.alias = {
-      ...(config.resolve.alias || {}),
+      ...config.resolve.alias,
       '@': rootPath,
     }
     
-    // Ensure proper module resolution order
-    config.resolve.modules = [
-      ...(config.resolve.modules || []),
-      path.resolve(rootPath, 'node_modules'),
-      'node_modules',
-    ]
+    // Ensure extensions include TypeScript
+    if (!config.resolve.extensions) {
+      config.resolve.extensions = []
+    }
+    const extensions = new Set([
+      ...config.resolve.extensions,
+      '.ts',
+      '.tsx',
+      '.js',
+      '.jsx',
+    ])
+    config.resolve.extensions = Array.from(extensions)
     
     return config
   },
