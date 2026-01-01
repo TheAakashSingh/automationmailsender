@@ -1,0 +1,177 @@
+// Prisma Schema for Bulk Email Automation System
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  email         String   @unique
+  password      String   // Hashed password
+  name          String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("users")
+}
+
+model Lead {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  company       String
+  email         String
+  phone         String?
+  website       String?
+  city          String?
+  country       String?
+  industry      String?
+  tags          String[] @default([])
+  status        String   @default("pending") // pending | sent | replied | bounced | unsubscribed
+  emailSentAt   DateTime?
+  lastFollowUpAt DateTime?
+  replyDetectedAt DateTime?
+  bounceReason  String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  campaigns     CampaignLead[]
+  emailLogs     EmailLog[]
+
+  @@index([email])
+  @@index([status])
+  @@index([industry])
+  @@index([country])
+  @@map("leads")
+}
+
+model Campaign {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  name            String
+  templateId      String   @db.ObjectId
+  template        EmailTemplate @relation(fields: [templateId], references: [id])
+  status          String   @default("draft") // draft | running | paused | completed | stopped
+  dailyLimit      Int      @default(50)
+  totalSent       Int      @default(0)
+  totalReplies    Int      @default(0)
+  totalBounces    Int      @default(0)
+  filters         Json?    // Lead filters (industry, country, etc.)
+  followUpEnabled Boolean  @default(false)
+  followUpDelayDays Int    @default(5)
+  followUpTemplateId String? @db.ObjectId
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  startedAt       DateTime?
+  pausedAt        DateTime?
+  completedAt     DateTime?
+
+  campaignLeads   CampaignLead[]
+  jobs            JobQueue[]
+
+  @@map("campaigns")
+}
+
+model CampaignLead {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  campaignId String   @db.ObjectId
+  campaign   Campaign @relation(fields: [campaignId], references: [id])
+  leadId     String   @db.ObjectId
+  lead       Lead     @relation(fields: [leadId], references: [id])
+  status     String   @default("pending") // pending | sent | replied | bounced | skipped
+  sentAt     DateTime?
+  createdAt  DateTime @default(now())
+
+  @@unique([campaignId, leadId])
+  @@index([campaignId])
+  @@index([leadId])
+  @@map("campaign_leads")
+}
+
+model EmailTemplate {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  subject     String
+  body        String   // Plain text only
+  variables   String[] @default([]) // Available variables
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  campaigns   Campaign[]
+
+  @@map("email_templates")
+}
+
+model SMTPAccount {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  host      String
+  port      Int
+  secure    Boolean  @default(true) // Use TLS/SSL
+  username  String
+  password  String   // Encrypted in production
+  fromEmail String
+  fromName  String?
+  isActive  Boolean  @default(true)
+  lastTestedAt DateTime?
+  testStatus String? // success | failed
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("smtp_accounts")
+}
+
+model EmailLog {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  leadId      String   @db.ObjectId
+  lead        Lead     @relation(fields: [leadId], references: [id])
+  campaignId  String?  @db.ObjectId
+  templateId  String?  @db.ObjectId
+  smtpAccountId String? @db.ObjectId
+  toEmail     String
+  subject     String
+  status      String   // sent | failed | bounced
+  smtpResponse String?
+  isFollowUp  Boolean  @default(false)
+  replyDetected Boolean @default(false)
+  errorMessage String?
+  createdAt   DateTime @default(now())
+
+  @@index([leadId])
+  @@index([campaignId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("email_logs")
+}
+
+model Unsubscribe {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  email     String   @unique
+  reason    String?
+  source    String?  // manual | reply
+  createdAt DateTime @default(now())
+
+  @@map("unsubscribes")
+}
+
+model JobQueue {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  campaignId  String   @db.ObjectId
+  campaign    Campaign @relation(fields: [campaignId], references: [id])
+  leadId      String   @db.ObjectId
+  type        String   // send | followup
+  status      String   @default("pending") // pending | processing | completed | failed
+  priority    Int      @default(0)
+  scheduledAt DateTime @default(now())
+  processedAt DateTime?
+  errorMessage String?
+  retryCount  Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([status, scheduledAt])
+  @@index([campaignId])
+  @@map("job_queue")
+}
+
