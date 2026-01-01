@@ -2,27 +2,27 @@
 const path = require('path')
 
 const nextConfig = {
-  // Server Actions are enabled by default in Next.js 14
-  webpack: (config, { isServer }) => {
-    // Ensure @ alias resolves correctly
+  webpack: (config) => {
+    // Explicitly resolve @ alias to project root
+    const rootPath = path.resolve(process.cwd())
+    
     config.resolve.alias = {
-      ...config.resolve.alias,
-      '@': path.resolve(__dirname),
+      ...(config.resolve.alias || {}),
+      '@': rootPath,
     }
     
-    // Ensure proper module resolution
+    // Ensure proper module resolution order
     config.resolve.modules = [
-      path.resolve(__dirname, 'node_modules'),
+      ...(config.resolve.modules || []),
+      path.resolve(rootPath, 'node_modules'),
       'node_modules',
     ]
     
     return config
   },
-  // Ensure TypeScript paths are resolved
   typescript: {
     ignoreBuildErrors: false,
   },
-  // Ensure ESLint doesn't block builds
   eslint: {
     ignoreDuringBuilds: false,
   },
