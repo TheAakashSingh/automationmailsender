@@ -3,11 +3,5 @@
   "devCommand": "npm run dev",
   "installCommand": "npm install",
   "framework": "nextjs",
-  "regions": ["iad1"],
-  "crons": [
-    {
-      "path": "/api/cron/process-queue",
-      "schedule": "*/2 * * * *"
-    }
-  ]
+  "regions": ["iad1"]
 }

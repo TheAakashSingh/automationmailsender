@@ -4,6 +4,7 @@ import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import DashboardStats from '@/components/DashboardStats'
 import RecentActivity from '@/components/RecentActivity'
+import ProcessQueueButton from '@/components/ProcessQueueButton'
 
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions)
@@ -67,8 +68,13 @@ export default async function DashboardPage() {
         totalUnsubscribed={totalUnsubscribed}
       />
 
-      <div className="mt-8">
-        <RecentActivity />
+      <div className="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2">
+          <RecentActivity />
+        </div>
+        <div>
+          <ProcessQueueButton />
+        </div>
       </div>
     </div>
   )

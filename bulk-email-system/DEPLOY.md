@@ -68,18 +68,22 @@ node scripts/create-admin.js
 # Enter email, password, name
 ```
 
-### Step 8: Setup Cron Job
+### Step 8: Process Email Queue
 
-**Option A: Vercel Cron (Easiest)**
-The `vercel.json` file already includes cron configuration. Vercel will automatically run it every 2 minutes.
+**Option A: Manual Processing (Recommended for Hobby Plan)**
+- Go to Dashboard
+- Click **"Process Email Queue Now"** button
+- Click it every 1-2 minutes while campaigns are running
+- Or use a browser extension to auto-click
 
-**Option B: External Service**
-- Go to [cron-job.org](https://cron-job.org)
+**Option B: External Cron Service (Free)**
+- Go to [cron-job.org](https://cron-job.org) or [EasyCron](https://www.easycron.com)
 - Create new cron job
 - URL: `https://your-app.vercel.app/api/cron/process-queue`
 - Method: GET
 - Headers: `Authorization: Bearer YOUR_CRON_SECRET`
 - Schedule: Every 1-2 minutes
+- **Note:** Vercel Hobby plan doesn't support frequent cron jobs, so use external service
 
 ## ✅ Verification
 
